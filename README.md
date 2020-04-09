@@ -1,68 +1,83 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Dockerized REACT
 
-## Available Scripts
+## How to use it via Docker Compose
 
-In the project directory, you can run:
+build the image and fire up the container
+'''
+docker-compose up -d --build
+'''
 
-### `npm start`
+Run on:  <http://localhost:3001/>
+Can do change in App.js to see the reload
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## How to use it via Dockerfile
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+Build and tag the Docker image:
+'''
+ docker build -t jdh:dev .
+'''
 
-### `npm test`
+Spin up the container
+'''
+docker run \
+    -it \
+    --rm \
+    -v ${PWD}:/app \
+    -v /app/node_modules \
+    -p 3001:3000 \
+    -e CHOKIDAR_USEPOLLING=true \
+    jdh:dev
+'''
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Explanation of the parameter:
 
-### `npm run build`
+|  docker run                  |                                                           |
+|------------------------------|-----------------------------------------------------------|
+|  -it                         |                                                           |
+|  -rm                         |                                                           |
+|  -v ${PWD}:/app              |                                                           |
+|  -v /app/node_modules        |                                                           |
+|  -p 3001:3000                |                                                           |
+|  -e CHOKIDAR_USEPOLLING=true |    hot-reloading will work                                |
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Explanation of the Dockerfile
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+'''
+FROM node:13.12.0-alpine
+'''
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Alpine Linux is much smaller than most distribution base images (~5MB), and thus leads to much slimmer images in general.
 
-### `npm run eject`
+Documentation:
+<https://github.com/nodejs/docker-node/blob/master/README.md#how-to-use-this-image>
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+'''
+RUN npm install --silent
+RUN npm install react-scripts@3.4.1 -g --silent
+'''
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Silencing NPM
+Addition of a .dockerignore, speed up the Docker build, the node_modules directory will not be sent to the Docker daemon.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Explanation of the Docker-compose
 
-## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+'''
+    volumes:
+      - '.:/app'
+      - '/app/node_modules'
+'''
 
-To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Code Splitting
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+## Addition of one parameter due to bug
 
-### Analyzing the Bundle Size
+Addition of the flag:
+'''
+stdin_open: true
+'''
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+<https://github.com/facebook/create-react-app/issues/8688>
 
-### Making a Progressive Web App
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
