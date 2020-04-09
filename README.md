@@ -34,14 +34,15 @@ docker run \
 
 Explanation of the parameter:
 
-|  docker run                  |                                                           |
+|  docker run                  |  creates and runs a new container instance from the image previously created                                                         |
 |------------------------------|-----------------------------------------------------------|
-|  -it                         |                                                           |
-|  -rm                         |                                                           |
-|  -v ${PWD}:/app              |                                                           |
-|  -v /app/node_modules        |                                                           |
-|  -p 3001:3000                |                                                           |
+|  -it                         |    due to bug <https://github.com/facebook/create-react-app/issues/8688> similar to stdin=true create an interactive bash shell in the container                                                       |
+|  -rm                         |    remove the container and volumes after the container exits                                                       |
+|  -v ${PWD}:/app              |  mounts the code of the application jdh into the container at "/app"                                               |
+|  -v /app/node_modules        |  mounts another volume  to use the container version of the node_modules folder (can be removed locally)                                                         |
+|  -p 3001:3000                |    port 3001 localhost - port 3000 to other Docker container                                                       |
 |  -e CHOKIDAR_USEPOLLING=true |    hot-reloading will work                                |
+|  jdh:dev                     |    name of the image                                      |
 
 ## Explanation of the Dockerfile
 
@@ -69,6 +70,8 @@ Addition of a .dockerignore, speed up the Docker build, the node_modules directo
       - '.:/app'
       - '/app/node_modules'
 ```
+
+Anonymous volume: <https://success.docker.com/article/different-types-of-volumes>
 
 ## Addition of one parameter due to bug
 
